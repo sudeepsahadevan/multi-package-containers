@@ -43,15 +43,15 @@ jobs:
 
       - name: Push to GHCR
         run: |
-          docker images
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
 
-          for image in $(docker images --format "{{.Repository}}:{{.Tag}}"); do
+          for image in $(docker images --format "{{.Repository}}:{{.Tag}}"| grep -Pi "biocontainers/mulled*"); do
             repo=$(basename $(echo "$image" | cut -d: -f1))
             tag=$(echo "$image" | cut -d: -f2)
 
             docker tag "$image" \
-              ghcr.io/${{ github.repository_owner }}/$repo:$tag
+              ghcr.io/$owner/$repo:$tag
 
             docker push \
-              ghcr.io/${{ github.repository_owner }}/$repo:$tag
+              ghcr.io/$owner/$repo:$tag
           done
