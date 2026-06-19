@@ -1,0 +1,57 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'combinations/**'
+      - '.github/workflows/builder.yml'
+  workflow_dispatch:
+
+env:
+  MULLED_TOOL_UTIL_SOURCE: git+https://github.com/bgruening/galaxy.git@mulled_quay_enhancements#subdirectory=packages/tool_util
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Build containers
+        run: |
+          uv run --with "$MULLED_TOOL_UTIL_SOURCE" \
+            python -m galaxy.tool_util.deps.mulled.mulled_build_files \
+            build-and-test ./combinations --verbose
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push to GHCR
+        run: |
+          docker images
+
+          for image in $(docker images --format "{{.Repository}}:{{.Tag}}"); do
+            repo=$(basename $(echo "$image" | cut -d: -f1))
+            tag=$(echo "$image" | cut -d: -f2)
+
+            docker tag "$image" \
+              ghcr.io/${{ github.repository_owner }}/$repo:$tag
+
+            docker push \
+              ghcr.io/${{ github.repository_owner }}/$repo:$tag
+          done
