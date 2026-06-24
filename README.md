@@ -2,7 +2,7 @@
 
 This repo builds multiple package containers using a workflow adapted from the repo [BioContainers/multi-package-containers](https://github.com/BioContainers/multi-package-containers), and builds docker images using [this utility](https://github.com/bgruening/galaxy/tree/mulled_quay_enhancements/packages/tool_util) from Galaxy project.
 
-These containers are used as a part of the in-house developed CLIP-seq workflow.
+These containers are used as a part of the [in-house developed CLIP-seq workflow](https://github.com/EMBL-Hentze-group/CLIPseq-workflow).
 
 See [this page](https://github.com/orgs/EMBL-Hentze-group/packages) for a complete list of containers publicly available from the namespace [EMBL-Hentze-group](https://github.com/EMBL-Hentze-group).
 
